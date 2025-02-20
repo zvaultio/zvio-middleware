@@ -14,6 +14,8 @@ from middlewared.utils.pci import get_all_pci_devices_details
 
 class VirtDeviceService(Service):
 
+    PCI_CHOICES = None
+
     class Config:
         namespace = 'virt.device'
         cli_namespace = 'virt.device'
@@ -99,8 +101,13 @@ class VirtDeviceService(Service):
         """
         Returns choices for PCI devices valid for VM virt instances.
         """
+        if self.PCI_CHOICES is not None:
+            return self.PCI_CHOICES
+
         pci_choices = {}
         for pci_addr, pci_details in get_all_pci_devices_details().items():
             if pci_details['critical'] is False and not pci_details['error']:
                 pci_choices[pci_addr] = pci_details
-        return pci_choices
+
+        self.PCI_CHOICES = pci_choices
+        return self.PCI_CHOICES
