@@ -47,6 +47,6 @@ def test__smb_share_dataset_destroy():
 
             # Verify that middleware properly closed the share
             with pytest.raises(NTSTATUSError) as nterr:
-                c.ls()
+                c.ls('/')
 
             assert e.value.args[0] == ntstatus.NT_STATUS_NETWORK_NAME_DELETED
