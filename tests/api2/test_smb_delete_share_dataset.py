@@ -49,4 +49,4 @@ def test__smb_share_dataset_destroy():
             with pytest.raises(NTSTATUSError) as nterr:
                 c.ls('/')
 
-            assert e.value.args[0] == ntstatus.NT_STATUS_NETWORK_NAME_DELETED
+            assert nterr.value.args[0] == ntstatus.NT_STATUS_NETWORK_NAME_DELETED
