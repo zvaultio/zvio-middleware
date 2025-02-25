@@ -21,7 +21,7 @@ RUN_DEPENDS=	${PYTHON_PKGNAMEPREFIX}ws4py>0:www/py-ws4py@${PY_FLAVOR} \
 		${PYTHON_PKGNAMEPREFIX}flask>0:www/py-flask@${PY_FLAVOR} \
 		${PYTHON_PKGNAMEPREFIX}boto3>0:www/py-boto3@${PY_FLAVOR} \
 		${PYTHON_PKGNAMEPREFIX}netif>0:net/py-netif@${PY_FLAVOR} \
-		${PYTHON_PKGNAMEPREFIX}bsd>0:freenas/zvio-py-bsd@${PY_FLAVOR} \
+		${PYTHON_PKGNAMEPREFIX}bsd>0:freenas/py-bsd@${PY_FLAVOR} \
 		${PYTHON_PKGNAMEPREFIX}cam>0:devel/py-cam@${PY_FLAVOR} \
 		${PYTHON_PKGNAMEPREFIX}sentry-sdk>0:devel/py-sentry-sdk@${PY_FLAVOR} \
 		${PYTHON_PKGNAMEPREFIX}markdown>0:textproc/py-markdown@${PY_FLAVOR} \
@@ -56,7 +56,7 @@ RUN_DEPENDS=	${PYTHON_PKGNAMEPREFIX}ws4py>0:www/py-ws4py@${PY_FLAVOR} \
 		${PYTHON_PKGNAMEPREFIX}fenced>0:truenas/py-fenced@${PY_FLAVOR} \
 		${PYTHON_PKGNAMEPREFIX}alembic>0:databases/py-alembic@${PY_FLAVOR} \
 		${PYTHON_PKGNAMEPREFIX}sqlalchemy14>0:databases/py-sqlalchemy14@${PY_FLAVOR} \
-		${PYTHON_PKGNAMEPREFIX}licenselib>0:freenas/zvio-py-licenselib@${PY_FLAVOR} \
+		${PYTHON_PKGNAMEPREFIX}licenselib>0:freenas/py-licenselib@${PY_FLAVOR} \
 		${PYTHON_PKGNAMEPREFIX}simplejson>0:devel/py-simplejson@${PY_FLAVOR} \
 		${PYTHON_PKGNAMEPREFIX}sqlparse>0:databases/py-sqlparse@${PY_FLAVOR} \
 		${PYTHON_PKGNAMEPREFIX}pycryptodome>0:security/py-pycryptodome@${PY_FLAVOR} \
@@ -71,7 +71,7 @@ RUN_DEPENDS=	${PYTHON_PKGNAMEPREFIX}ws4py>0:www/py-ws4py@${PY_FLAVOR} \
 		${PYTHON_PKGNAMEPREFIX}html2text>0:textproc/py-html2text@${PY_FLAVOR} \
 		${PYTHON_PKGNAMEPREFIX}passlib>0:security/py-passlib@${PY_FLAVOR} \
 		${PYTHON_PKGNAMEPREFIX}aws-requests-auth>0:devel/py-aws-requests-auth@${PY_FLAVOR} \
-		freenas-pkgtools>0:freenas/zvio-pkgtools \
+		freenas-pkgtools>0:freenas/freenas-pkgtools \
 		freenas-migrate93>0:freenas/freenas-migrate93 \
 		freenas-migrate113>0:freenas/freenas-migrate113 \
 		tc-stats>0:freenas/tc-stats \

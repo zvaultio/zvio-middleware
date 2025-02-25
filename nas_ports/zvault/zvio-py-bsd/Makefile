@@ -5,7 +5,7 @@ PORTVERSION=	${PRODUCT_VERSION:C/\-.*//:C/\_.*//}
 PORTREVISION=	${REVISION}
 PKGNAMEPREFIX=	${PYTHON_PKGNAMEPREFIX}
 
-CATEGORIES=	freenas
+CATEGORIES=	zvault
 VALID_CATEGORIES+= freenas
 
 MAINTAINER=	dev@ixsystems.com
@@ -14,7 +14,7 @@ COMMENT=	Python wrappers for various BSD interfaces
 EXTRACT_ONLY=
 BUILD_DEPENDS=  ${PYTHON_PKGNAMEPREFIX}six>0:devel/py-six@${FLAVOR}
 
-WRKSRC=		/usr/nas_source/zvio-py-bsd
+WRKSRC=		/usr/nas_source/py-bsd
 
 USES=		python
 USE_PYTHON=	autoplist cython distutils

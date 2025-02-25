@@ -1062,7 +1062,7 @@ menu_install()
 	chown -R www:www /tmp/data/data
     fi
 
-    local OS=TrueNAS
+    local OS=zVault
 
     # Tell it to look in /.mount for the packages.
     /usr/local/bin/freenas-install -P /.mount/${OS}/Packages -M /.mount/${OS}-MANIFEST /tmp/data

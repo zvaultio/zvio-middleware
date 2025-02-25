@@ -477,11 +477,11 @@ class CryptoKeyService(Service):
         cert = self.generate_builder({
             'crypto_subject_name': {
                 'country_name': 'US',
-                'organization_name': 'iXsystems',
+                'organization_name': 'zvault.io',
                 'common_name': 'localhost',
-                'email_address': 'info@ixsystems.com',
-                'state_or_province_name': 'Tennessee',
-                'locality_name': 'Maryville',
+                'email_address': 'team@zvault.io',
+                'state_or_province_name': 'Alaska',
+                'locality_name': 'Fairbanks',
             },
             'lifetime': NOT_VALID_AFTER_DEFAULT,
             'san': self.normalize_san(['localhost'])
@@ -1750,12 +1750,12 @@ class CertificateService(CRUDService):
                     "name": "internal_cert",
                     "key_length": 2048,
                     "lifetime": 3600,
-                    "city": "Nashville",
+                    "city": "Fairbanks",
                     "common": "domain1.com",
                     "country": "US",
-                    "email": "dev@ixsystems.com",
-                    "organization": "iXsystems",
-                    "state": "Tennessee",
+                    "email": "team@zvault.io",
+                    "organization": "zvault.io",
+                    "state": "Alaska",
                     "digest_algorithm": "SHA256",
                     "signedby": 4,
                     "create_type": "CERTIFICATE_CREATE_INTERNAL"
@@ -2483,12 +2483,12 @@ class CertificateAuthorityService(CRUDService):
                     "name": "internal_ca",
                     "key_length": 2048,
                     "lifetime": 3600,
-                    "city": "Nashville",
+                    "city": "Fairbanks",
                     "common": "domain1.com",
                     "country": "US",
-                    "email": "dev@ixsystems.com",
-                    "organization": "iXsystems",
-                    "state": "Tennessee",
+                    "email": "team@zvault.io",
+                    "organization": "zvault.io",
+                    "state": "Alaska",
                     "digest_algorithm": "SHA256"
                     "create_type": "CA_CREATE_INTERNAL"
                 }]
@@ -2911,13 +2911,13 @@ async def setup(middlewared):
     if not failure and (not system_cert or system_cert['id'] not in [c['id'] for c in certs]):
         # create a self signed cert if it doesn't exist and set ui_certificate to it's value
         try:
-            if not any('freenas_default' == c['name'] for c in certs):
+            if not any('zvaultio_default' == c['name'] for c in certs):
                 cert, key = await middlewared.call('cryptokey.generate_self_signed_certificate')
 
                 cert_dict = {
                     'certificate': cert,
                     'privatekey': key,
-                    'name': 'freenas_default',
+                    'name': 'zvaultio_default',
                     'type': CERT_TYPE_EXISTING,
                 }
 
@@ -2933,7 +2933,7 @@ async def setup(middlewared):
 
                 middlewared.logger.debug('Default certificate for System created')
             else:
-                id = [c['id'] for c in certs if c['name'] == 'freenas_default'][0]
+                id = [c['id'] for c in certs if c['name'] == 'zvaultio_default'][0]
                 await middlewared.call('certificate.cert_services_validation', id, 'certificate')
 
             await middlewared.call(

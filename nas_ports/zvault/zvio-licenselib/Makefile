@@ -4,7 +4,7 @@ PORTNAME=	licenselib
 PORTVERSION=	${PRODUCT_VERSION:C/\-.*//:C/\_.*//}
 PORTREVISION=	${REVISION}
 PKGNAMEPREFIX=	${PYTHON_PKGNAMEPREFIX}
-CATEGORIES=	freenas
+CATEGORIES=	zvault
 VALID_CATEGORIES+=freenas
 
 MAINTAINER=	wg@FreeBSD.org
@@ -14,7 +14,7 @@ USES=		python
 USE_PYTHON=	autoplist distutils
 
 EXTRACT_ONLY=
-WRKSRC?=/usr/nas_source/zvio-licenselib
+WRKSRC?=/usr/nas_source/py-licenselib
 
 # no checksum, we just used git!
 checksum fetch:

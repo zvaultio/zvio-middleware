@@ -14,7 +14,7 @@ USES=		python
 USE_PYTHON=	autoplist distutils
 
 EXTRACT_ONLY=
-WRKSRC?=/usr/nas_source/zvio-licenselib
+WRKSRC=/usr/nas_source/zvio-py-licenselib
 
 # no checksum, we just used git!
 checksum fetch:
