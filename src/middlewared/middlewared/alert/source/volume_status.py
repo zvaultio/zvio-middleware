@@ -7,26 +7,15 @@ class VolumeStatusAlertClass(AlertClass):
     title = "Pool Status Is Not Healthy"
     text = "Pool %(volume)s state is %(state)s: %(status)s%(devices)s"
 
-    proactive_support = True
-
 
 class VolumeStatusAlertSource(AlertSource):
     async def check(self):
-        if not await self.enabled():
-            return
-
         alerts = []
         for pool in await self.middleware.call("pool.query"):
             if not pool["is_decrypted"]:
                 continue
 
             if not pool["healthy"]:
-                if await self.middleware.call("system.is_enterprise"):
-                    try:
-                        await self.middleware.call("enclosure.sync_zpool", pool["name"])
-                    except Exception:
-                        pass
-
                 bad_vdevs = []
                 if pool["topology"]:
                     for vdev in await self.middleware.call("pool.flatten_topology", pool["topology"]):
@@ -52,10 +41,3 @@ class VolumeStatusAlertSource(AlertSource):
                 ))
 
         return alerts
-
-    async def enabled(self):
-        if await self.middleware.call("system.is_enterprise"):
-            status = await self.middleware.call("failover.status")
-            return status in ("MASTER", "SINGLE")
-
-        return True
