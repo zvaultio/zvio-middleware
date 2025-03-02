@@ -82,14 +82,6 @@ class ISCSIGlobalService(SystemServiceService):
     async def alua_enabled(self):
         """
         Returns whether iSCSI ALUA is enabled or not.
+        Always returns True.
         """
-        if await self.middleware.call('system.is_freenas'):
-            return False
-        if not await self.middleware.call('failover.licensed'):
-            return False
-
-        license = (await self.middleware.call('system.info'))['license']
-        if license and 'FIBRECHANNEL' in license['features']:
-            return True
-
-        return (await self.middleware.call('iscsi.global.config'))['alua']
+        return True
