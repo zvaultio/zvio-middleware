@@ -179,7 +179,7 @@ class Alert:
 class AlertSource:
     schedule = IntervalSchedule(timedelta())
 
-    products = ("CORE", "ENTERPRISE")
+    products = ("CORE")
     failover_related = False
     run_on_backup_node = True
 
@@ -242,10 +242,7 @@ class AlertService:
     async def _format_alerts(self, alerts, gone_alerts, new_alerts):
         product_name = await self.middleware.call("system.product_name")
         hostname = socket.gethostname()
-        if not await self.middleware.call("system.is_freenas"):
-            node_map = await self.middleware.call("alert.node_map")
-        else:
-            node_map = None
+        node_map = None
         return format_alerts(product_name, hostname, node_map, alerts, gone_alerts, new_alerts)
 
 
