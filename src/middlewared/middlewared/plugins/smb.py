@@ -474,15 +474,7 @@ class SMBService(SystemServiceService):
         if await self.middleware.call('cache.has_key', 'SMB_HA_MODE'):
             return await self.middleware.call('cache.get', 'SMB_HA_MODE')
 
-        if not await self.middleware.call('system.is_freenas') and await self.middleware.call('failover.licensed'):
-            system_dataset = await self.middleware.call('systemdataset.config')
-            if system_dataset['pool'] != await self.middleware.call('boot.pool_name'):
-                hamode = SMBHAMODE['UNIFIED'].name
-            else:
-                hamode = SMBHAMODE['LEGACY'].name
-        else:
-            hamode = SMBHAMODE['STANDALONE'].name
-
+        hamode = SMBHAMODE['STANDALONE'].name
         await self.middleware.call('cache.put', 'SMB_HA_MODE', hamode)
         return hamode
 
