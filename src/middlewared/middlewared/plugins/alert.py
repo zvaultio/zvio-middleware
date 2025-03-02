@@ -215,12 +215,7 @@ class AlertService(Service):
 
     @private
     async def initialize(self, load=True):
-        is_enterprise = await self.middleware.call("system.is_enterprise")
-
         self.node = "A"
-        if is_enterprise:
-            if await self.middleware.call("failover.node") == "B":
-                self.node = "B"
 
         self.alerts = []
         if load:
@@ -316,25 +311,7 @@ class AlertService(Service):
     async def node_map(self):
         nodes = {
             'A': 'Controller A',
-            'B': 'Controller B',
         }
-        if await self.middleware.call('system.is_enterprise') and await self.middleware.call('failover.licensed'):
-            node = await self.middleware.call('failover.node')
-            status = await self.middleware.call('failover.status')
-            if status == 'MASTER':
-                if node == 'A':
-                    nodes = {
-                        'A': 'Active Controller (A)',
-                        'B': 'Standby Controller (B)',
-                    }
-                else:
-                    nodes = {
-                        'A': 'Standby Controller (A)',
-                        'B': 'Active Controller (B)',
-                    }
-            else:
-                nodes[node] = f'{status.title()} Controller ({node})'
-
         return nodes
 
     def __alert_by_uuid(self, uuid):
@@ -505,60 +482,11 @@ class AlertService(Service):
                     if alert.mail:
                         await self.middleware.call("mail.send", alert.mail)
 
-                if await self.middleware.call("system.is_enterprise"):
-                    new_proactive_support_alerts = [
-                        alert
-                        for alert in new_alerts
-                        if (
-                            alert.klass.proactive_support and
-                            (await as_.get_alert_class(alert)).get("proactive_support", True)
-                        )
-                    ]
-                    if new_proactive_support_alerts:
-                        if await self.middleware.call("support.is_available_and_enabled"):
-                            support = await self.middleware.call("support.config")
-                            msg = [f"* {alert.formatted}" for alert in new_proactive_support_alerts]
-
-                            serial = (await self.middleware.call("system.info"))["system_serial"]
-
-                            for name, verbose_name in await self.middleware.call("support.fields"):
-                                value = support[name]
-                                if value:
-                                    msg += ["", "{}: {}".format(verbose_name, value)]
-
-                            msg = "\n".join(msg)
-
-                            job = await self.middleware.call("support.new_ticket", {
-                                "title": "Automatic alert (%s)" % serial,
-                                "body": msg,
-                                "attach_debug": False,
-                                "category": "Hardware",
-                                "criticality": "Loss of Functionality",
-                                "environment": "Production",
-                                "name": "Automatic Alert",
-                                "email": "auto-support@ixsystems.com",
-                                "phone": "-",
-                            })
-                            await job.wait()
-                            if job.error:
-                                await self.middleware.call("alert.oneshot_create", "AutomaticAlertFailed",
-                                                           {"serial": serial, "alert": msg, "error": str(job.error)})
-
     def __uuid(self):
         return str(uuid.uuid4())
 
     async def __should_run_or_send_alerts(self):
         if await self.middleware.call('system.state') != 'READY':
-            return False
-
-        if (
-            await self.middleware.call('system.is_enterprise') and
-            await self.middleware.call('failover.licensed') and
-            (
-                await self.middleware.call('failover.status') == 'BACKUP' or
-                await self.middleware.call('failover.in_progress')
-            )
-        ):
             return False
 
         return True
@@ -568,25 +496,7 @@ class AlertService(Service):
         backup_node = "B"
         product_type = await self.middleware.call("alert.product_type")
         run_on_backup_node = False
-        run_failover_related = False
-        if product_type == "ENTERPRISE":
-            if await self.middleware.call("failover.licensed"):
-                if await self.middleware.call("failover.node") == "B":
-                    master_node = "B"
-                    backup_node = "A"
-                try:
-                    remote_version = await self.middleware.call("failover.call_remote", "system.version")
-                    remote_system_state = await self.middleware.call("failover.call_remote", "system.state")
-                    remote_failover_status = await self.middleware.call("failover.call_remote",
-                                                                        "failover.status")
-                except Exception:
-                    pass
-                else:
-                    if remote_version == await self.middleware.call("system.version"):
-                        if remote_system_state == "READY" and remote_failover_status == "BACKUP":
-                            run_on_backup_node = True
-
-            run_failover_related = time.monotonic() > self.blocked_failover_alerts_until
+        run_failover_related = True
 
         for k, source_lock in list(self.sources_locks.items()):
             if source_lock.expires_at <= time.monotonic():
@@ -770,13 +680,6 @@ class AlertService(Service):
     @periodic(3600, run_on_start=False)
     @private
     async def flush_alerts(self):
-        if (
-            await self.middleware.call('system.is_enterprise') and
-            await self.middleware.call('failover.licensed') and
-            await self.middleware.call('failover.status') == 'BACKUP'
-        ):
-            return
-
         await self.middleware.call("datastore.delete", "system.alert", [])
 
         for alert in self.alerts:
@@ -847,9 +750,6 @@ class AlertService(Service):
     @private
     async def product_type(self):
         product_type = await self.middleware.call("system.product_type")
-        # FIXME
-        if product_type == "SCALE":
-            product_type = "CORE"
         return product_type
 
 
@@ -942,79 +842,11 @@ class AlertServiceService(CRUDService):
                     "enabled": true,
                     "type": "Mail",
                     "attributes": {
-                        "email": "dev@ixsystems.com"
+                        "email": "admin@example.com"
                     },
                     "settings": {
                         "VolumeVersion": "HOURLY"
                     }
-                }]
-            }
-        """
-        await self._validate(data, "alert_service_create")
-
-        data["id"] = await self.middleware.call("datastore.insert", self._config.datastore, data)
-
-        await self._extend(data)
-
-        return data
-
-    @accepts(Int("id"), Patch(
-        "alert_service_create",
-        "alert_service_update",
-        ("attr", {"update": True}),
-    ))
-    async def do_update(self, id, data):
-        """
-        Update Alert Service of `id`.
-        """
-        old = await self.middleware.call("datastore.query", self._config.datastore, [("id", "=", id)],
-                                         {"extend": self._config.datastore_extend,
-                                          "get": True})
-
-        new = old.copy()
-        new.update(data)
-
-        await self._validate(new, "alert_service_update")
-
-        await self._compress(new)
-
-        await self.middleware.call("datastore.update", self._config.datastore, id, new)
-
-        await self._extend(new)
-
-        return new
-
-    @accepts(Int("id"))
-    async def do_delete(self, id):
-        """
-        Delete Alert Service of `id`.
-        """
-        return await self.middleware.call("datastore.delete", self._config.datastore, id)
-
-    @accepts(
-        Ref('alert_service_create')
-    )
-    async def test(self, data):
-        """
-        Send a test alert using `type` of Alert Service.
-
-        .. examples(websocket)::
-
-          Send a test alert using Alert Service of Mail `type`.
-
-            :::javascript
-            {
-                "id": "6841f242-840a-11e6-a437-00e04d680384",
-                "msg": "method",
-                "method": "alertservice.test",
-                "params": [{
-                    "name": "Test Email Alert",
-                    "enabled": true,
-                    "type": "Mail",
-                    "attributes": {
-                        "email": "dev@ixsystems.com"
-                    },
-                    "settings": {}
                 }]
             }
         """
@@ -1033,9 +865,6 @@ class AlertServiceService(CRUDService):
             return False
 
         master_node = "A"
-        if await self.middleware.call("system.is_enterprise"):
-            if await self.middleware.call("failover.licensed"):
-                master_node = await self.middleware.call("failover.node")
 
         test_alert = Alert(
             TestAlertClass,
