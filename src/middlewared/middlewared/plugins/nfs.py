@@ -166,15 +166,14 @@ class NFSService(SystemServiceService):
         keytab_has_nfs = await self.middleware.call("kerberos.keytab.has_nfs_principal")
         new_v4_krb_enabled = new["v4_krb"] or keytab_has_nfs
 
-        if new["v4"] and new_v4_krb_enabled and not await self.middleware.call("system.is_freenas"):
-            if await self.middleware.call("failover.licensed"):
-                gc = await self.middleware.call("datastore.config", "network.globalconfiguration")
-                if not gc["gc_hostname_virtual"] or not gc["gc_domain"]:
-                    verrors.add(
-                        "nfs_update.v4",
-                        "Enabling kerberos authentication on TrueNAS HA requires setting the virtual hostname and "
-                        "domain"
-                    )
+        if new["v4"] and new_v4_krb_enabled:
+            gc = await self.middleware.call("datastore.config", "network.globalconfiguration")
+            if not gc["gc_hostname_virtual"] or not gc["gc_domain"]:
+                verrors.add(
+                    "nfs_update.v4",
+                    "Enabling kerberos authentication on zvault requires setting the virtual hostname and "
+                    "domain"
+                )
 
         bindip_choices = await self.bindip_choices()
         for i, bindip in enumerate(new['bindip']):
@@ -187,12 +186,6 @@ class NFSService(SystemServiceService):
             usernames with the short form of the AD domain. Directly update the db and regenerate
             the smb.conf to avoid having a service disruption due to restarting the samba server.
             """
-            if await self.middleware.call('smb.get_smb_ha_mode') == 'LEGACY':
-                raise ValidationError(
-                    'nfs_update.v4',
-                    'Enabling kerberos authentication on TrueNAS HA requires '
-                    'the system dataset to be located on a data pool.'
-                )
             ad = await self.middleware.call('activedirectory.config')
             await self.middleware.call(
                 'datastore.update',
