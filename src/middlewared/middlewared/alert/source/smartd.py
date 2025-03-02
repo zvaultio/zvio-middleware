@@ -25,9 +25,5 @@ class SmartdAlertSource(ThreadedAlertSource):
                 # in these environments isn"t a huge deal.  So we"ll skip alerting.
                 return
 
-            if not self.middleware.call_sync("system.is_freenas"):
-                if self.middleware.call_sync("failover.status") != "MASTER":
-                    return
-
             if not self.middleware.call_sync("service.started", "smartd"):
                 return Alert(SmartdAlertClass)
