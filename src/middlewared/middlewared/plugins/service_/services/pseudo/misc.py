@@ -39,25 +39,25 @@ class DiskService(PseudoServiceBase):
         self.middleware.create_task(self.middleware.call("service.restart", "collectd"))
 
 
-class FailoverService(PseudoServiceBase):
-    name = "failover"
+#class FailoverService(PseudoServiceBase):
+#    name = "failover"
+#
+#    restartable = True
+#
+#    async def restart(self):
+#        if osc.IS_FREEBSD:
+#            await self.middleware.call('etc.generate', 'pf')
+#            await freebsd_service("devd", "restart")
+#
+#        # FIXME: Linux
 
-    restartable = True
 
-    async def restart(self):
-        if osc.IS_FREEBSD:
-            await self.middleware.call('etc.generate', 'pf')
-            await freebsd_service("devd", "restart")
-
-        # FIXME: Linux
-
-
-class KmipService(PseudoServiceBase):
-    name = "kmip"
-
-    async def start(self):
-        await self.middleware.call("service.start", "ssl")
-        await self.middleware.call("etc.generate", "kmip")
+#class KmipService(PseudoServiceBase):
+#    name = "kmip"
+#
+#    async def start(self):
+#        await self.middleware.call("service.start", "ssl")
+#        await self.middleware.call("etc.generate", "kmip")
 
 
 class LoaderService(PseudoServiceBase):
