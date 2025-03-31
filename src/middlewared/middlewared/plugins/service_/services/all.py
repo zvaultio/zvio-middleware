@@ -27,8 +27,6 @@ from .pseudo.libvirtd import LibvirtdService
 from .pseudo.misc import (
     CronService,
     DiskService,
-    FailoverService,
-    KmipService,
     LoaderService,
     MOTDService,
     HttpService,
