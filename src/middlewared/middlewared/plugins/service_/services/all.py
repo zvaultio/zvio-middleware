@@ -75,8 +75,6 @@ all_services = [
     LibvirtdService,
     CronService,
     DiskService,
-    FailoverService,
-    KmipService,
     LoaderService,
     MOTDService,
     HostnameService,
