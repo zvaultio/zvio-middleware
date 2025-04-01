@@ -281,10 +281,7 @@ class DiskService(Service, ServiceChangeMixin):
                         'iscsi.extent.query', [['type', '=', 'DISK'], ['path', '=', disk['disk_identifier']]]
                     ):
                         self.middleware.call_sync('iscsi.extent.delete', extent['id'])
-                    if disk['disk_kmip_uid']:
-                        self.middleware.create_task(self.middleware.call(
-                            'kmip.reset_sed_disk_password', disk['disk_identifier'], disk['disk_kmip_uid']
-                        ))
+                    # KMIP functionality has been removed
                     self.middleware.call_sync('datastore.delete', 'storage.disk', disk['disk_identifier'], options)
                     deleted.add(disk['disk_identifier'])
                 continue

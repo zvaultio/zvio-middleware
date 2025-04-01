@@ -2082,9 +2082,7 @@ class PoolDatasetService(CRUDService):
                 data
             )
 
-        kmip_config = await self.middleware.call('kmip.config')
-        if kmip_config['enabled'] and kmip_config['manage_zfs_keys']:
-            await self.middleware.call('kmip.sync_zfs_keys', [pk])
+        # KMIP functionality has been removed
 
         return pk
 

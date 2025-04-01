@@ -268,11 +268,7 @@ class SystemAdvancedService(ConfigService):
             if config_data.get('sed_user'):
                 config_data['sed_user'] = config_data['sed_user'].lower()
             if not config_data['sed_passwd'] and config_data['sed_passwd'] != original_data['sed_passwd']:
-                # We want to make sure kmip uid is None in this case
-                adv_config = await self.middleware.call('datastore.config', self._config.datastore)
-                self.middleware.create_task(
-                    self.middleware.call('kmip.reset_sed_global_password', adv_config['adv_kmip_uid'])
-                )
+                # KMIP functionality has been removed
                 config_data['kmip_uid'] = None
 
             await self.middleware.call(
@@ -336,8 +332,7 @@ class SystemAdvancedService(ConfigService):
             ):
                 await self.middleware.call('service.restart', 'syslogd')
 
-            if config_data['sed_passwd'] and original_data['sed_passwd'] != config_data['sed_passwd']:
-                await self.middleware.call('kmip.sync_sed_keys')
+            # KMIP functionality has been removed
 
         return await self.config()
 
@@ -349,7 +344,7 @@ class SystemAdvancedService(ConfigService):
         passwd = (await self.middleware.call(
             'datastore.config', 'system.advanced', {'prefix': self._config.datastore_prefix}
         ))['sed_passwd']
-        return passwd if passwd else await self.middleware.call('kmip.sed_global_password')
+        return passwd
 
     @private
     def autotune(self, conf='loader'):

@@ -78,7 +78,7 @@ class DiskService(CRUDService):
         The following extra options are supported:
 
              include_expired: true - will also include expired disks (default: false)
-             passwords: true - will not hide KMIP password for the disks (default: false)
+             passwords: true - will not hide password for the disks (default: false)
              pools: true - will join pool name for each disk (default: false)
         """
         filters = filters or []
@@ -102,12 +102,8 @@ class DiskService(CRUDService):
         else:
             disk['devname'] = disk['name']
         self._expand_enclosure(disk)
-        if context['passwords']:
-            if not disk['passwd']:
-                disk['passwd'] = context['disks_keys'].get(disk['identifier'], '')
-        else:
+        if not context['passwords']:
             disk.pop('passwd')
-            disk.pop('kmip_uid')
         if disk['name'] in context['boot_pool_disks']:
             disk['pool'] = context['boot_pool_name']
         else:
@@ -126,8 +122,7 @@ class DiskService(CRUDService):
             'zfs_guid_to_pool': {},
         }
 
-        if context['passwords']:
-            context['disks_keys'] = await self.middleware.call('kmip.retrieve_sed_disks_keys')
+        # KMIP functionality has been removed
 
         if context['pools']:
             context['boot_pool_disks'] = await self.middleware.call('boot.get_disks')
@@ -229,9 +224,7 @@ class DiskService(CRUDService):
             raise verrors
 
         if not new['passwd'] and old['passwd'] != new['passwd']:
-            # We want to make sure kmip uid is None in this case
-            if new['kmip_uid']:
-                self.middleware.create_task(self.middleware.call('kmip.reset_sed_disk_password', id, new['kmip_uid']))
+            # Reset kmip_uid when password is removed
             new['kmip_uid'] = None
 
         for key in ['acousticlevel', 'advpowermgmt', 'hddstandby']:
@@ -268,8 +261,7 @@ class DiskService(CRUDService):
             await self._service_change('smartd', 'restart')
             await self._service_change('snmp', 'restart')
 
-        if new['passwd'] and old['passwd'] != new['passwd']:
-            await self.middleware.call('kmip.sync_sed_keys', [id])
+        # KMIP functionality has been removed
 
         return await self.query([['identifier', '=', id]], {'get': True})
 
