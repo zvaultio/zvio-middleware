@@ -1,5 +1,5 @@
 from middlewared.service import Service, private, CallError, job
-from middlewared.schema import accepts, Bool, Dict, Int, List, Str, returns, Patch
+from middlewared.schema import accepts, Bool, Dict, Int, List, Str, Patch
 import errno
 import logging
 
