@@ -1,5 +1,5 @@
 from middlewared.service import Service, private, CallError, job
-from middlewared.schema import accepts, Bool, Dict, Int, List, Str, Patch
+from middlewared.schema import accepts, Bool, Dict, Int, List, Str
 import errno
 import logging
 
@@ -12,10 +12,10 @@ class FailoverService(Service):
     All methods return default values that should not break the rest of the code.
     """
 
-    @accepts(Patch(
-        'failover_entry', 'failover_update',
-        ('add', Bool('disabled')),
-        ('add', Bool('master')),
+    @accepts(Dict(
+        'failover_update',
+        Bool('disabled'),
+        Bool('master'),
     ))
     @job(lock='failover_update')
     async def update(self, job, data):
