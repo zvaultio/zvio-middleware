@@ -2,6 +2,9 @@ from middlewared.service import Service, private
 
 
 class DatastoreStubService(Service):
+    
+    class Config:
+        namespace = 'datastore.stub'
     """
     Stub service to handle queries for removed database tables.
     """
