@@ -165,18 +165,6 @@ system_func()
 		section_footer
 	fi
 
-	if [ "x${ret1}" = "xFalse" ];
-	then
-		if [ "x${ret2}" != "xSINGLE" ];
-		then
-			section_header "hactl output"
-			hactl
-			section_footer
-		else
-			echo "Non-HA TrueNAS system detected"
-		fi
-	fi
-
 	section_header "Failed updates /data/update.failed"
 	sc /data/update.failed
 	section_footer
